@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { Vehicle, FleetHistory, VehicleStatus } from '@/types/fleet';
 import { getSupabaseClient } from '@/lib/supabase/client';
@@ -44,6 +45,8 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
   const [weekStart, setWeekStart] = useState(() => getWeekStart(new Date()));
   const [history, setHistory] = useState<FleetHistory[]>(initialHistory);
   const [tooltip, setTooltip] = useState<TooltipInfo | null>(null);
+  const router = useRouter();
+  const refreshedRef = useRef(false);
 
   const weekDates = getWeekDates(weekStart);
 
@@ -59,14 +62,23 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
 
     // Fetch records that overlap with this week:
     // start_time <= week_end  AND  (end_time >= week_start OR end_time IS NULL)
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('fleet_history')
       .select('*')
       .lte('start_time', `${to}T23:59:59.999Z`)
       .or(`end_time.gte.${from}T00:00:00Z,end_time.is.null`);
 
+    if (error) { console.error('[CalendarGrid] fetchWeekHistory error:', error); return; }
     if (data !== null) setHistory(data as FleetHistory[]);
   }, []);
+
+  // Force fresh server data on every calendar visit
+  useEffect(() => {
+    if (!refreshedRef.current) {
+      refreshedRef.current = true;
+      router.refresh();
+    }
+  }, [router]);
 
   useEffect(() => {
     fetchWeekHistory(weekStart);
