@@ -43,12 +43,12 @@ export default async function DashboardPage() {
       {/* Top navigation bar */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5">
             <div className="bg-blue-600 text-white p-1.5 rounded-lg">
               <Truck className="w-4 h-4" />
             </div>
             <span className="font-semibold text-gray-900 text-base">Fleet Dashboard</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
             {/* Navigation */}
             <nav className="flex items-center gap-1">
