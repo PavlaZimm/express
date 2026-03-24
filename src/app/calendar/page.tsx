@@ -32,13 +32,17 @@ export default async function CalendarPage() {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
+    const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const fromStr = fmt(weekStart);
+    const toStr = fmt(weekEnd);
+
     const [{ data: v }, { data: h }] = await Promise.all([
       supabase.from('vehicles').select('*').order('spz'),
       supabase
         .from('fleet_history')
         .select('*')
-        .gte('start_time', weekStart.toISOString().split('T')[0] + 'T00:00:00Z')
-        .or(`end_time.gte.${weekStart.toISOString().split('T')[0]}T00:00:00Z,end_time.is.null`)
+        .lte('start_time', `${toStr}T23:59:59.999Z`)
+        .or(`end_time.gte.${fromStr}T00:00:00Z,end_time.is.null`)
         .order('start_time', { ascending: true }),
     ]);
 
@@ -51,12 +55,12 @@ export default async function CalendarPage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+          <Link href="/" className="flex items-center gap-2.5">
             <div className="bg-blue-600 text-white p-1.5 rounded-lg">
               <Truck className="w-4 h-4" />
             </div>
             <span className="font-semibold text-gray-900 text-base">Fleet Dashboard</span>
-          </div>
+          </Link>
           {/* Navigation */}
           <nav className="flex items-center gap-1">
             <Link
