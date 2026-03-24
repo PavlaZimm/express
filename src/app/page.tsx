@@ -1,4 +1,5 @@
 import { Truck, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { VehicleGrid } from '@/components/dashboard/VehicleGrid';
 import { HistoryTable } from '@/components/history/HistoryTable';
@@ -12,12 +13,12 @@ export default async function DashboardPage() {
   const isConfigured = !!(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project-id'));
 
   const demoVehicles: Vehicle[] = [
-    { id: '1', spz: '1AB 1234', status: 'idle' },
-    { id: '2', spz: '2CD 5678', status: 'idle' },
-    { id: '3', spz: '3EF 9012', status: 'idle' },
-    { id: '4', spz: '4GH 3456', status: 'idle' },
-    { id: '5', spz: '5IJ 7890', status: 'idle' },
-    { id: '6', spz: '6KL 2345', status: 'idle' },
+    { id: '1', spz: '1AB 1234', driver_name: null, status: 'idle' },
+    { id: '2', spz: '2CD 5678', driver_name: null, status: 'idle' },
+    { id: '3', spz: '3EF 9012', driver_name: null, status: 'idle' },
+    { id: '4', spz: '4GH 3456', driver_name: null, status: 'idle' },
+    { id: '5', spz: '5IJ 7890', driver_name: null, status: 'idle' },
+    { id: '6', spz: '6KL 2345', driver_name: null, status: 'idle' },
   ];
 
   let safeVehicles: Vehicle[] = demoVehicles;
@@ -48,17 +49,33 @@ export default async function DashboardPage() {
             </div>
             <span className="font-semibold text-gray-900 text-base">Fleet Dashboard</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Navigation */}
+            <nav className="flex items-center gap-1">
+              <Link
+                href="/"
+                className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/calendar"
+                className="px-3 py-1.5 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                Kalendář
+              </Link>
+            </nav>
+            {/* Status indicator */}
             {isConfigured ? (
-              <>
+              <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 <span className="text-xs text-gray-500">Realtime</span>
-              </>
+              </div>
             ) : (
-              <>
+              <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 bg-amber-400 rounded-full" />
                 <span className="text-xs text-amber-600">Není nakonfigurováno</span>
-              </>
+              </div>
             )}
           </div>
         </div>

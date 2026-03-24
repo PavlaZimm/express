@@ -3,6 +3,7 @@ export type VehicleStatus = 'driving' | 'vacation' | 'service' | 'idle';
 export interface Vehicle {
   id: string;
   spz: string;
+  driver_name: string | null;
   status: VehicleStatus;
 }
 

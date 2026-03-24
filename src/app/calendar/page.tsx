@@ -1,0 +1,84 @@
+import { Truck } from 'lucide-react';
+import Link from 'next/link';
+import { getSupabaseServer } from '@/lib/supabase/server';
+import { CalendarGrid } from '@/components/calendar/CalendarGrid';
+import { Vehicle, FleetHistory } from '@/types/fleet';
+import { getWeekStart } from '@/lib/utils/calendarHelpers';
+
+export const dynamic = 'force-dynamic';
+
+export default async function CalendarPage() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const isConfigured = !!(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project-id'));
+
+  const demoVehicles: Vehicle[] = [
+    { id: '1', spz: '1AB 1234', driver_name: null, status: 'idle' },
+    { id: '2', spz: '2CD 5678', driver_name: null, status: 'idle' },
+    { id: '3', spz: '3EF 9012', driver_name: null, status: 'idle' },
+    { id: '4', spz: '4GH 3456', driver_name: null, status: 'idle' },
+    { id: '5', spz: '5IJ 7890', driver_name: null, status: 'idle' },
+    { id: '6', spz: '6KL 2345', driver_name: null, status: 'idle' },
+  ];
+
+  let vehicles: Vehicle[] = demoVehicles;
+  let history: FleetHistory[] = [];
+
+  if (isConfigured) {
+    const supabase = getSupabaseServer();
+
+    // Fetch current week's history for SSR
+    const weekStart = getWeekStart(new Date());
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+
+    const [{ data: v }, { data: h }] = await Promise.all([
+      supabase.from('vehicles').select('*').order('spz'),
+      supabase
+        .from('fleet_history')
+        .select('*')
+        .gte('start_time', weekStart.toISOString().split('T')[0] + 'T00:00:00Z')
+        .or(`end_time.gte.${weekStart.toISOString().split('T')[0]}T00:00:00Z,end_time.is.null`)
+        .order('start_time', { ascending: true }),
+    ]);
+
+    vehicles = (v as Vehicle[]) ?? demoVehicles;
+    history = (h as FleetHistory[]) ?? [];
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="bg-blue-600 text-white p-1.5 rounded-lg">
+              <Truck className="w-4 h-4" />
+            </div>
+            <span className="font-semibold text-gray-900 text-base">Fleet Dashboard</span>
+          </div>
+          {/* Navigation */}
+          <nav className="flex items-center gap-1">
+            <Link
+              href="/"
+              className="px-3 py-1.5 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/calendar"
+              className="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg"
+            >
+              Kalendář
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-10">
+        <CalendarGrid initialVehicles={vehicles} initialHistory={history} />
+      </main>
+    </div>
+  );
+}

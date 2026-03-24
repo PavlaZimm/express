@@ -32,11 +32,14 @@ export function VehicleCard({ vehicle, isUpdating, onStatusChange }: VehicleCard
         )}
       </div>
 
-      {/* License plate */}
+      {/* License plate + driver */}
       <div className="text-center">
         <span className="font-mono text-xl font-bold text-gray-900 tracking-widest">
           {vehicle.spz}
         </span>
+        {vehicle.driver_name && (
+          <p className="text-xs text-gray-500 mt-0.5 truncate">{vehicle.driver_name}</p>
+        )}
       </div>
 
       {/* Status buttons */}
