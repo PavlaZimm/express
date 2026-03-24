@@ -18,8 +18,10 @@ export function useFleetHistory(initialHistory: FleetHistory[]) {
   const [loading, setLoading] = useState(false);
 
   const fetchHistory = useCallback(async (f: HistoryFilters) => {
-    setLoading(true);
     const supabase = getSupabaseClient();
+    if (!supabase) return; // env vars not configured
+
+    setLoading(true);
 
     let query = supabase
       .from('fleet_history')
@@ -58,6 +60,7 @@ export function useFleetHistory(initialHistory: FleetHistory[]) {
   // Realtime: refresh when fleet_history changes
   useEffect(() => {
     const supabase = getSupabaseClient();
+    if (!supabase) return; // env vars not configured
 
     const channel = supabase
       .channel('history-realtime')
@@ -65,7 +68,6 @@ export function useFleetHistory(initialHistory: FleetHistory[]) {
         'postgres_changes',
         { event: '*', schema: 'public', table: 'fleet_history' },
         () => {
-          // Re-fetch with current filters on any change
           fetchHistory(filters);
         }
       )

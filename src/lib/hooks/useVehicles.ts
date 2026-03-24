@@ -10,6 +10,7 @@ export function useVehicles(initialVehicles: Vehicle[]) {
 
   useEffect(() => {
     const supabase = getSupabaseClient();
+    if (!supabase) return; // env vars not configured
 
     const channel = supabase
       .channel('vehicles-realtime')
@@ -43,6 +44,11 @@ export function useVehicles(initialVehicles: Vehicle[]) {
       setUpdating((prev) => new Set(prev).add(vehicleId));
 
       const supabase = getSupabaseClient();
+      if (!supabase) {
+        // No Supabase — keep optimistic update for demo purposes
+        setUpdating((prev) => { const n = new Set(prev); n.delete(vehicleId); return n; });
+        return;
+      }
 
       try {
         // 1) Close any open history record for this vehicle

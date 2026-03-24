@@ -11,7 +11,16 @@ export default async function DashboardPage() {
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const isConfigured = !!(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project-id'));
 
-  let safeVehicles: Vehicle[] = [];
+  const demoVehicles: Vehicle[] = [
+    { id: '1', spz: '1AB 1234', status: 'idle' },
+    { id: '2', spz: '2CD 5678', status: 'idle' },
+    { id: '3', spz: '3EF 9012', status: 'idle' },
+    { id: '4', spz: '4GH 3456', status: 'idle' },
+    { id: '5', spz: '5IJ 7890', status: 'idle' },
+    { id: '6', spz: '6KL 2345', status: 'idle' },
+  ];
+
+  let safeVehicles: Vehicle[] = demoVehicles;
   let safeHistory: FleetHistory[] = [];
 
   if (isConfigured) {
