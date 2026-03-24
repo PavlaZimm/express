@@ -58,19 +58,21 @@ export function useVehicles(initialVehicles: Vehicle[]) {
 
       try {
         // 1) Close any open history record for this vehicle
-        await supabase
+        const { error: closeError } = await supabase
           .from('fleet_history')
           .update({ end_time: new Date().toISOString() })
           .eq('vehicle_id', vehicleId)
           .is('end_time', null);
+        if (closeError) throw closeError;
 
         // 2) Open a new history record
-        await supabase.from('fleet_history').insert({
+        const { error: insertError } = await supabase.from('fleet_history').insert({
           vehicle_id: vehicleId,
           spz: vehicle.spz,
           status: newStatus,
           start_time: new Date().toISOString(),
         });
+        if (insertError) throw insertError;
 
         // 3) Update the live vehicle status
         const { error } = await supabase
