@@ -13,12 +13,15 @@ export interface CalendarRow {
   days: DayStatus[];
 }
 
-// Get 7 dates starting from the given Monday (YYYY-MM-DD)
+// Get 7 dates starting from the given Monday (YYYY-MM-DD) in local time
 export function getWeekDates(startDate: Date): string[] {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(startDate);
     d.setDate(d.getDate() + i);
-    return d.toISOString().split('T')[0];
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   });
 }
 
@@ -60,8 +63,8 @@ export function buildCalendarRows(
     const vehicleHistory = history.filter((h) => h.vehicle_id === vehicle.id);
 
     const days: DayStatus[] = weekDates.map((date) => {
-      const dayStart = new Date(date + 'T00:00:00.000Z').getTime();
-      const dayEnd = new Date(date + 'T23:59:59.999Z').getTime();
+      const dayStart = new Date(date + 'T00:00:00').getTime();
+      const dayEnd = new Date(date + 'T23:59:59.999').getTime();
 
       // Find overlapping history segments for this day
       const overlapping = vehicleHistory.filter((h) => {
