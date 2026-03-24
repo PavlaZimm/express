@@ -32,13 +32,17 @@ export default async function CalendarPage() {
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 6);
 
+    const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const fromStr = fmt(weekStart);
+    const toStr = fmt(weekEnd);
+
     const [{ data: v }, { data: h }] = await Promise.all([
       supabase.from('vehicles').select('*').order('spz'),
       supabase
         .from('fleet_history')
         .select('*')
-        .gte('start_time', weekStart.toISOString().split('T')[0] + 'T00:00:00Z')
-        .or(`end_time.gte.${weekStart.toISOString().split('T')[0]}T00:00:00Z,end_time.is.null`)
+        .lte('start_time', `${toStr}T23:59:59.999Z`)
+        .or(`end_time.gte.${fromStr}T00:00:00Z,end_time.is.null`)
         .order('start_time', { ascending: true }),
     ]);
 

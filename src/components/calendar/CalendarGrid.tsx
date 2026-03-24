@@ -57,20 +57,36 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
     toDate.setDate(toDate.getDate() + 6);
     const to = fmt(toDate);
 
+    // Fetch records that overlap with this week:
+    // start_time <= week_end  AND  (end_time >= week_start OR end_time IS NULL)
     const { data } = await supabase
       .from('fleet_history')
       .select('*')
-      .or(`start_time.lte.${to}T23:59:59Z,end_time.is.null`)
-      .gte('start_time', from + 'T00:00:00Z');
+      .lte('start_time', `${to}T23:59:59.999Z`)
+      .or(`end_time.gte.${from}T00:00:00Z,end_time.is.null`);
 
-    if (data) setHistory(data as FleetHistory[]);
+    if (data !== null) setHistory(data as FleetHistory[]);
   }, []);
 
   useEffect(() => {
     fetchWeekHistory(weekStart);
 
+    // Refresh when tab becomes visible (user switches from dashboard to calendar)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchWeekHistory(weekStart);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+
+    // Fallback polling every 30 seconds
+    const timer = setInterval(() => fetchWeekHistory(weekStart), 30_000);
+
     const supabase = getSupabaseClient();
-    if (!supabase) return;
+    if (!supabase) {
+      return () => {
+        document.removeEventListener('visibilitychange', onVisible);
+        clearInterval(timer);
+      };
+    }
 
     const channel = supabase
       .channel('calendar-realtime')
@@ -79,7 +95,11 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
       })
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      clearInterval(timer);
+      supabase.removeChannel(channel);
+    };
   }, [weekStart, fetchWeekHistory]);
 
   const rows = buildCalendarRows(initialVehicles, history, weekDates);
