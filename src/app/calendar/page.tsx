@@ -13,12 +13,12 @@ export default async function CalendarPage() {
   const isConfigured = !!(supabaseUrl && supabaseKey && !supabaseUrl.includes('your-project-id'));
 
   const demoVehicles: Vehicle[] = [
-    { id: '1', spz: '1AB 1234', driver_name: null, status: 'idle' },
-    { id: '2', spz: '2CD 5678', driver_name: null, status: 'idle' },
-    { id: '3', spz: '3EF 9012', driver_name: null, status: 'idle' },
-    { id: '4', spz: '4GH 3456', driver_name: null, status: 'idle' },
-    { id: '5', spz: '5IJ 7890', driver_name: null, status: 'idle' },
-    { id: '6', spz: '6KL 2345', driver_name: null, status: 'idle' },
+    { id: '1', spz: '6SM7428', type: 'dodávka', driver_name: null, status: 'idle' },
+    { id: '2', spz: '6SM7429', type: 'dodávka', driver_name: null, status: 'idle' },
+    { id: '3', spz: '1UZ 1408', type: 'kamion', driver_name: null, status: 'idle' },
+    { id: '4', spz: '1UZ 8160', type: 'kamion', driver_name: null, status: 'idle' },
+    { id: '5', spz: '1UZ 8168', type: 'kamion', driver_name: null, status: 'idle' },
+    { id: '6', spz: '1U7 8413', type: 'kamion', driver_name: null, status: 'idle' },
   ];
 
   let vehicles: Vehicle[] = demoVehicles;
