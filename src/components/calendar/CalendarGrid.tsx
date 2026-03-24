@@ -51,10 +51,11 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
     const supabase = getSupabaseClient();
     if (!supabase) return;
 
-    const from = start.toISOString().split('T')[0];
+    const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const from = fmt(start);
     const toDate = new Date(start);
     toDate.setDate(toDate.getDate() + 6);
-    const to = toDate.toISOString().split('T')[0];
+    const to = fmt(toDate);
 
     const { data } = await supabase
       .from('fleet_history')
@@ -91,7 +92,8 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
   };
   const goToToday = () => setWeekStart(getWeekStart(new Date()));
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const _today = new Date();
+  const todayStr = `${_today.getFullYear()}-${String(_today.getMonth() + 1).padStart(2, '0')}-${String(_today.getDate()).padStart(2, '0')}`;
 
   return (
     <div className="flex flex-col gap-4">

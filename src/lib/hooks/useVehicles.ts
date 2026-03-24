@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import { Vehicle, VehicleStatus } from '@/types/fleet';
 
 export function useVehicles(initialVehicles: Vehicle[]) {
   const [vehicles, setVehicles] = useState<Vehicle[]>(initialVehicles);
   const [updating, setUpdating] = useState<Set<string>>(new Set());
+  const lastUpdateRef = useRef<Record<string, number>>({});
 
   useEffect(() => {
     const supabase = getSupabaseClient();
@@ -36,6 +37,11 @@ export function useVehicles(initialVehicles: Vehicle[]) {
     async (vehicleId: string, newStatus: VehicleStatus) => {
       const vehicle = vehicles.find((v) => v.id === vehicleId);
       if (!vehicle || vehicle.status === newStatus) return;
+
+      // Rate limiting: max 1 status change per vehicle per 2 seconds
+      const now = Date.now();
+      if (now - (lastUpdateRef.current[vehicleId] ?? 0) < 2000) return;
+      lastUpdateRef.current[vehicleId] = now;
 
       // Optimistic update
       setVehicles((prev) =>

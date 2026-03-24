@@ -5,6 +5,8 @@ function escapeCell(value: string): string {
   return `"${value.replace(/"/g, '""')}"`;
 }
 
+const SEP = ';'; // semicolon for Czech/Slovak Excel
+
 export function exportToCSV(rows: FleetHistory[], filename = 'fleet_history'): void {
   const headers = ['SPZ', 'Status', 'Začátek', 'Konec', 'Trvání'];
 
@@ -17,8 +19,9 @@ export function exportToCSV(rows: FleetHistory[], filename = 'fleet_history'): v
   ]);
 
   const csvContent = [
-    headers.map(escapeCell).join(','),
-    ...csvRows.map((r) => r.map(escapeCell).join(',')),
+    `sep=${SEP}`, // hint for Excel to use semicolon separator
+    headers.map(escapeCell).join(SEP),
+    ...csvRows.map((r) => r.map(escapeCell).join(SEP)),
   ].join('\r\n');
 
   const bom = '\uFEFF'; // UTF-8 BOM for Excel compatibility

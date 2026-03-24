@@ -33,13 +33,20 @@ export function useFleetHistory(initialHistory: FleetHistory[]) {
       query = query.eq('status', f.statusFilter);
     }
     if (f.spzSearch.trim()) {
-      query = query.ilike('spz', `%${f.spzSearch.trim()}%`);
+      // Sanitize: max 20 chars, only alphanumeric + spaces
+      const sanitized = f.spzSearch.trim().slice(0, 20).replace(/[^A-Za-z0-9\s]/g, '');
+      if (sanitized) query = query.ilike('spz', `%${sanitized}%`);
     }
     if (f.dateFrom) {
       query = query.gte('start_time', f.dateFrom + 'T00:00:00.000Z');
     }
     if (f.dateTo) {
       query = query.lte('start_time', f.dateTo + 'T23:59:59.999Z');
+    }
+    // Limit date range to max 366 days to prevent expensive full-table scans
+    if (f.dateFrom && f.dateTo) {
+      const diffDays = (new Date(f.dateTo).getTime() - new Date(f.dateFrom).getTime()) / 86_400_000;
+      if (diffDays > 366) return;
     }
     if (f.activeOnly) {
       query = query.is('end_time', null);

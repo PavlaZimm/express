@@ -1,6 +1,6 @@
 'use client';
 
-import { Car, Loader2 } from 'lucide-react';
+import { Car, Loader2, Truck } from 'lucide-react';
 import { Vehicle, VehicleStatus } from '@/types/fleet';
 import {
   STATUS_LABELS,
@@ -23,10 +23,12 @@ export function VehicleCard({ vehicle, isUpdating, onStatusChange }: VehicleCard
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={`w-2 h-2 rounded-full ${STATUS_DOT[vehicle.status]} ${vehicle.status === 'service' ? 'animate-pulse' : ''}`} />
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Vozidlo</span>
+          <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">{vehicle.type}</span>
         </div>
         {isUpdating ? (
           <Loader2 className="w-4 h-4 text-gray-400 animate-spin" />
+        ) : vehicle.type === 'kamion' ? (
+          <Truck className="w-4 h-4 text-gray-400" />
         ) : (
           <Car className="w-4 h-4 text-gray-400" />
         )}
