@@ -35,10 +35,14 @@ export function getWeekStart(date: Date): Date {
   return d;
 }
 
+const MONTHS_CZ = ['led', 'úno', 'bře', 'dub', 'kvě', 'čvn', 'čvc', 'srp', 'zář', 'říj', 'lis', 'pro'];
+
 export function formatWeekLabel(start: Date): string {
   const end = new Date(start);
   end.setDate(end.getDate() + 6);
-  return `${start.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' })} – ${end.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  const fmt = (d: Date, year = false) =>
+    `${d.getDate()}. ${MONTHS_CZ[d.getMonth()]}.${year ? ` ${d.getFullYear()}` : ''}`;
+  return `${fmt(start)} – ${fmt(end, true)}`;
 }
 
 export const DAY_LABELS = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'];

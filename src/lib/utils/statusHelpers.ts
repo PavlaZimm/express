@@ -48,11 +48,18 @@ export function formatDuration(start: string, end: string | null): string {
 }
 
 export function formatDateTime(iso: string): string {
+  // Use Intl.DateTimeFormat with explicit Prague timezone and formatToParts
+  // so server (UTC) and client (CET/CEST) always produce identical output.
   const d = new Date(iso);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  const hour = String(d.getHours()).padStart(2, '0');
-  const min = String(d.getMinutes()).padStart(2, '0');
-  return `${day}.${month}.${year} ${hour}:${min}`;
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Prague',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(d);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  return `${get('day')}.${get('month')}.${get('year')} ${get('hour')}:${get('minute')}`;
 }
