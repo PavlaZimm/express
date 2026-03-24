@@ -48,11 +48,11 @@ export function formatDuration(start: string, end: string | null): string {
 }
 
 export function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('cs-CZ', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const d = new Date(iso);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  const hour = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${day}.${month}.${year} ${hour}:${min}`;
 }
