@@ -1,14 +1,9 @@
 import { Truck } from 'lucide-react';
 import Link from 'next/link';
-import nextDynamic from 'next/dynamic';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { Vehicle, FleetHistory } from '@/types/fleet';
 import { getWeekStart } from '@/lib/utils/calendarHelpers';
-
-const CalendarGrid = nextDynamic(
-  () => import('@/components/calendar/CalendarGrid').then((m) => ({ default: m.CalendarGrid })),
-  { ssr: false }
-);
+import { CalendarGridWrapper } from '@/components/calendar/CalendarGridWrapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,7 +83,7 @@ export default async function CalendarPage() {
 
       {/* Main content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-10">
-        <CalendarGrid initialVehicles={vehicles} initialHistory={history} />
+        <CalendarGridWrapper initialVehicles={vehicles} initialHistory={history} />
       </main>
     </div>
   );
