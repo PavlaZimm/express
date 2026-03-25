@@ -93,16 +93,11 @@ export function buildCalendarRows(
         hoursMap[h.status] = (hoursMap[h.status] ?? 0) + hours;
       }
 
-      // Dominant status = highest priority with most time
-      let dominant: VehicleStatus = 'idle';
-      let maxScore = -1;
-      for (const [s, hrs] of Object.entries(hoursMap) as [VehicleStatus, number][]) {
-        const score = STATUS_PRIORITY[s] * 100 + hrs;
-        if (score > maxScore) {
-          maxScore = score;
-          dominant = s;
-        }
-      }
+      // Dominant status = latest-starting record for this day
+      const latest = overlapping.reduce((a, b) =>
+        new Date(b.start_time).getTime() > new Date(a.start_time).getTime() ? b : a
+      );
+      const dominant = latest.status;
 
       const segments = (Object.entries(hoursMap) as [VehicleStatus, number][])
         .map(([status, hours]) => ({ status, hours }))
