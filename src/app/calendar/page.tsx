@@ -1,9 +1,9 @@
 import { Truck } from 'lucide-react';
 import Link from 'next/link';
 import { getSupabaseServer } from '@/lib/supabase/server';
-import { CalendarGrid } from '@/components/calendar/CalendarGrid';
 import { Vehicle, FleetHistory } from '@/types/fleet';
 import { getWeekStart } from '@/lib/utils/calendarHelpers';
+import { CalendarGridWrapper } from '@/components/calendar/CalendarGridWrapper';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,18 +36,20 @@ export default async function CalendarPage() {
     const fromStr = fmt(weekStart);
     const toStr = fmt(weekEnd);
 
-    const [{ data: v }, { data: h }] = await Promise.all([
+    const [{ data: v }, { data: weekData }, { data: activeData }] = await Promise.all([
       supabase.from('vehicles').select('*').order('spz'),
       supabase
         .from('fleet_history')
         .select('*')
-        .lte('start_time', `${toStr}T23:59:59.999Z`)
-        .or(`end_time.gte.${fromStr}T00:00:00Z,end_time.is.null`)
-        .order('start_time', { ascending: true }),
+        .gte('start_time', `${fromStr}T00:00:00Z`)
+        .lte('start_time', `${toStr}T23:59:59.999Z`),
+      supabase.from('fleet_history').select('*').is('end_time', null),
     ]);
 
     vehicles = (v as Vehicle[]) ?? demoVehicles;
-    history = (h as FleetHistory[]) ?? [];
+    const merged = new Map<string, FleetHistory>();
+    for (const r of [...(weekData ?? []), ...(activeData ?? [])]) merged.set(r.id, r as FleetHistory);
+    history = Array.from(merged.values());
   }
 
   return (
@@ -81,7 +83,7 @@ export default async function CalendarPage() {
 
       {/* Main content */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-10">
-        <CalendarGrid initialVehicles={vehicles} initialHistory={history} />
+        <CalendarGridWrapper initialVehicles={vehicles} initialHistory={history} />
       </main>
     </div>
   );
