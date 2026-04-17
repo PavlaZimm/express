@@ -171,7 +171,7 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
       vehicleId: initialVehicles[0]?.id ?? '',
       status: 'driving',
       startTime: `${todayStr}T00:00`,
-      endTime: `${todayStr}T23:59`,
+      endTime: '',
     });
     setFormError(null);
     setShowForm(true);
