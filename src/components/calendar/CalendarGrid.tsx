@@ -54,6 +54,7 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const todayLocal = new Date();
   const todayStr = `${todayLocal.getFullYear()}-${String(todayLocal.getMonth() + 1).padStart(2, '0')}-${String(todayLocal.getDate()).padStart(2, '0')}`;
@@ -158,12 +159,18 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
     setSaving(false);
 
     if (error) {
-      setFormError(`Chyba při ukládání: ${error.message}`);
+      setFormError(`Chyba: ${error.message} (code: ${error.code})`);
       return;
     }
 
+    // Navigate calendar to the week containing the new record
+    const insertedDate = new Date(form.startTime);
+    const targetWeek = getWeekStart(insertedDate);
+    setWeekStart(targetWeek);
     setShowForm(false);
-    fetchWeekHistory(weekStart);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
+    fetchWeekHistory(targetWeek);
   };
 
   const openForm = () => {
@@ -224,6 +231,13 @@ export function CalendarGrid({ initialVehicles, initialHistory }: CalendarGridPr
           </button>
         </div>
       </div>
+
+      {/* Success toast */}
+      {saveSuccess && (
+        <div className="fixed top-4 right-4 z-50 bg-green-600 text-white text-sm font-medium px-4 py-2.5 rounded-xl shadow-lg">
+          Záznam byl uložen ✓
+        </div>
+      )}
 
       {/* Legend */}
       <div className="flex flex-wrap gap-3">
